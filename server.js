@@ -19,6 +19,11 @@ if (accountSid && authToken) {
 // Serve static files
 app.use(express.static('public'));
 
+// Serve index.html for root route
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 // API endpoint to get TURN credentials
 app.get('/api/turn-credentials', async (req, res) => {
   if (!twilioClient) {
@@ -61,4 +66,6 @@ const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Serving static files from: ${__dirname}/public`);
+  console.log(`Twilio configured: ${twilioClient ? 'Yes' : 'No'}`);
 });
