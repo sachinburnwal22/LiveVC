@@ -12,7 +12,13 @@ const incomingCallDiv = document.getElementById('incomingCall');
 let localStream;
 let pc;
 let currentOffer = null;
-const socket = io();
+
+// Mock socket for Vercel (no real-time signaling)
+const socket = {
+  on: () => {},
+  emit: () => {},
+  disconnect: () => {}
+};
 
 // ICE servers configuration - will be fetched from server
 let iceServers = [

@@ -7,6 +7,11 @@
 <body>
   <h1>Simple Video Chat</h1>
   
+  <div class="notice">
+    <p><strong>Note:</strong> This is a demo version on Vercel. Real-time video chat requires Socket.IO which doesn't work on serverless platforms.</p>
+    <p>For full functionality, visit the <a href="https://livevc.onrender.com" target="_blank">Render deployment</a>.</p>
+  </div>
+  
   <div class="container">
     <div class="videos">
       <video id="localVideo"  autoplay muted playsinline></video>
@@ -28,7 +33,6 @@
     </div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
