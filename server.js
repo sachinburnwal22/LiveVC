@@ -6,12 +6,7 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
+const io = socketIO(server);
 
 // Get Twilio credentials from environment variables
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -23,7 +18,7 @@ if (accountSid && authToken) {
 }
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 // Serve index.html for root route
 app.get('/', (req, res) => {
@@ -68,15 +63,10 @@ io.on('connection', socket => {
 });
 
 
-// Export the app for Vercel
-module.exports = app;
+const PORT = process.env.PORT || 3000;
 
-// Only start server if not in Vercel environment
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  const PORT = process.env.PORT || 3000;
-  
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Twilio configured: ${twilioClient ? 'Yes' : 'No'}`);
-  });
-}
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Twilio configured: ${twilioClient ? 'Yes' : 'No'}`);
+  console.log(`Serving static files from: ${path.join(__dirname, 'public')}`);
+});
