@@ -3,6 +3,7 @@ services:
     name: webrtc-video-chat
     env: node
     plan: free
+    rootDir: 17WebRTC
     buildCommand: npm install
     startCommand: npm start
     envVars:
