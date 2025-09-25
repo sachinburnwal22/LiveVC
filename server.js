@@ -18,11 +18,52 @@ if (accountSid && authToken) {
 }
 
 // Serve static files
-app.use(express.static('public'));
+const publicPath = path.join(__dirname, 'public');
+console.log('Setting up static file serving from:', publicPath);
+
+// Check if public directory exists
+const fs = require('fs');
+if (fs.existsSync(publicPath)) {
+  console.log('Public directory exists');
+  const files = fs.readdirSync(publicPath);
+  console.log('Files in public directory:', files);
+} else {
+  console.log('Public directory does not exist');
+}
+
+app.use(express.static(publicPath));
 
 // Serve index.html for root route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  console.log('Attempting to serve index.html from:', indexPath);
+  console.log('Current directory (__dirname):', __dirname);
+  
+  // Check if file exists
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    console.log('File exists, serving...');
+    res.sendFile(indexPath);
+  } else {
+    console.log('File does not exist, checking alternatives...');
+    // Try alternative paths
+    const altPaths = [
+      path.join(__dirname, 'index.html'),
+      path.join(process.cwd(), 'public', 'index.html'),
+      path.join(process.cwd(), 'index.html')
+    ];
+    
+    for (const altPath of altPaths) {
+      console.log('Checking:', altPath);
+      if (fs.existsSync(altPath)) {
+        console.log('Found file at:', altPath);
+        return res.sendFile(altPath);
+      }
+    }
+    
+    console.log('No index.html found, returning error');
+    res.status(404).send('index.html not found');
+  }
 });
 
 // API endpoint to get TURN credentials
