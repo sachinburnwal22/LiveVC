@@ -2,10 +2,16 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const twilio = require('twilio');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 // Get Twilio credentials from environment variables
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -17,13 +23,11 @@ if (accountSid && authToken) {
 }
 
 // Serve static files
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve index.html for root route
 app.get('/', (req, res) => {
-  const indexPath = require('path').join(__dirname, 'public', 'index.html');
-  console.log('Looking for index.html at:', indexPath);
-  res.sendFile(indexPath);
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // API endpoint to get TURN credentials
@@ -64,22 +68,15 @@ io.on('connection', socket => {
 });
 
 
-const PORT = process.env.PORT || 3000;
-const fs = require('fs');
-const path = require('path');
+// Export the app for Vercel
+module.exports = app;
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Current directory: ${__dirname}`);
-  console.log(`Serving static files from: ${path.join(__dirname, 'public')}`);
-  console.log(`Twilio configured: ${twilioClient ? 'Yes' : 'No'}`);
+// Only start server if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
   
-  // Debug: List files in public directory
-  const publicDir = path.join(__dirname, 'public');
-  try {
-    const files = fs.readdirSync(publicDir);
-    console.log('Files in public directory:', files);
-  } catch (error) {
-    console.log('Error reading public directory:', error.message);
-  }
-});
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Twilio configured: ${twilioClient ? 'Yes' : 'No'}`);
+  });
+}
