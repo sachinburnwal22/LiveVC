@@ -21,7 +21,9 @@ app.use(express.static('public'));
 
 // Serve index.html for root route
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  const indexPath = require('path').join(__dirname, 'public', 'index.html');
+  console.log('Looking for index.html at:', indexPath);
+  res.sendFile(indexPath);
 });
 
 // API endpoint to get TURN credentials
@@ -63,9 +65,21 @@ io.on('connection', socket => {
 
 
 const PORT = process.env.PORT || 3000;
+const fs = require('fs');
+const path = require('path');
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Serving static files from: ${__dirname}/public`);
+  console.log(`Current directory: ${__dirname}`);
+  console.log(`Serving static files from: ${path.join(__dirname, 'public')}`);
   console.log(`Twilio configured: ${twilioClient ? 'Yes' : 'No'}`);
+  
+  // Debug: List files in public directory
+  const publicDir = path.join(__dirname, 'public');
+  try {
+    const files = fs.readdirSync(publicDir);
+    console.log('Files in public directory:', files);
+  } catch (error) {
+    console.log('Error reading public directory:', error.message);
+  }
 });
