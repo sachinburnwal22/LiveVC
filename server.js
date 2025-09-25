@@ -17,53 +17,29 @@ if (accountSid && authToken) {
   twilioClient = twilio(accountSid, authToken);
 }
 
-// Serve static files
+// Serve static files - handle flattened structure on Render
 const publicPath = path.join(__dirname, 'public');
-console.log('Setting up static file serving from:', publicPath);
+const rootPath = __dirname;
+
+console.log('Setting up static file serving...');
+console.log('Public path:', publicPath);
+console.log('Root path:', rootPath);
 
 // Check if public directory exists
 const fs = require('fs');
 if (fs.existsSync(publicPath)) {
-  console.log('Public directory exists');
-  const files = fs.readdirSync(publicPath);
-  console.log('Files in public directory:', files);
+  console.log('Public directory exists, using it');
+  app.use(express.static(publicPath));
 } else {
-  console.log('Public directory does not exist');
+  console.log('Public directory does not exist, serving from root');
+  app.use(express.static(rootPath));
 }
-
-app.use(express.static(publicPath));
 
 // Serve index.html for root route
 app.get('/', (req, res) => {
-  const indexPath = path.join(__dirname, 'public', 'index.html');
-  console.log('Attempting to serve index.html from:', indexPath);
-  console.log('Current directory (__dirname):', __dirname);
-  
-  // Check if file exists
-  const fs = require('fs');
-  if (fs.existsSync(indexPath)) {
-    console.log('File exists, serving...');
-    res.sendFile(indexPath);
-  } else {
-    console.log('File does not exist, checking alternatives...');
-    // Try alternative paths
-    const altPaths = [
-      path.join(__dirname, 'index.html'),
-      path.join(process.cwd(), 'public', 'index.html'),
-      path.join(process.cwd(), 'index.html')
-    ];
-    
-    for (const altPath of altPaths) {
-      console.log('Checking:', altPath);
-      if (fs.existsSync(altPath)) {
-        console.log('Found file at:', altPath);
-        return res.sendFile(altPath);
-      }
-    }
-    
-    console.log('No index.html found, returning error');
-    res.status(404).send('index.html not found');
-  }
+  const indexPath = path.join(__dirname, 'index.html');
+  console.log('Serving index.html from:', indexPath);
+  res.sendFile(indexPath);
 });
 
 // API endpoint to get TURN credentials
